@@ -175,7 +175,3 @@ php artisan test
 ```bash
 php artisan l5-swagger:generate
 ```
-
-## Архітектурні нотатки
-
-Окремий файл з поясненням архітектурних рішень: [ARCHITECTURE.md](ARCHITECTURE.md)
