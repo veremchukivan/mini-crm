@@ -1,0 +1,197 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Mini CRM API",
+        "description": "API for creating tickets from the embeddable widget and reading ticket statistics.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/",
+            "description": "Application root"
+        }
+    ],
+    "paths": {
+        "/api/tickets": {
+            "post": {
+                "tags": [
+                    "Tickets"
+                ],
+                "summary": "Create ticket",
+                "description": "Creates a new CRM ticket from the public widget and optionally stores one attachment.",
+                "operationId": "storeTicket",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "phone",
+                                    "email",
+                                    "subject",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Olena Koval"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "pattern": "^\\+[1-9]\\d{1,14}$",
+                                        "example": "+380501234567"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "olena@example.com"
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "maxLength": 255,
+                                        "example": "Потрібна консультація"
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Опишіть ваше завдання або запит."
+                                    },
+                                    "attachment": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Ticket created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "subject": {
+                                                    "type": "string",
+                                                    "example": "Потрібна консультація"
+                                                },
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "new"
+                                                },
+                                                "status_label": {
+                                                    "type": "string",
+                                                    "example": "Новий"
+                                                },
+                                                "manager_responded_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "nullable": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                },
+                                                "client": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "Olena Koval"
+                                                        },
+                                                        "phone": {
+                                                            "type": "string",
+                                                            "example": "+380501234567"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "format": "email",
+                                                            "example": "olena@example.com"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error or daily limit exceeded"
+                    }
+                }
+            }
+        },
+        "/api/tickets/statistics": {
+            "get": {
+                "tags": [
+                    "Statistics"
+                ],
+                "summary": "Get ticket statistics",
+                "description": "Returns ticket counters for the current day, week and month.",
+                "operationId": "ticketStatistics",
+                "responses": {
+                    "200": {
+                        "description": "Statistics payload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "day": {
+                                                    "type": "integer",
+                                                    "example": 4
+                                                },
+                                                "week": {
+                                                    "type": "integer",
+                                                    "example": 17
+                                                },
+                                                "month": {
+                                                    "type": "integer",
+                                                    "example": 54
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Tickets",
+            "description": "Public endpoints for widget ticket flow"
+        },
+        {
+            "name": "Statistics",
+            "description": "Ticket statistics endpoints"
+        }
+    ]
+}

@@ -34,7 +34,7 @@ class TicketFactory extends Factory
         ];
     }
 
-    public function new(): static
+    public function asNew(): static
     {
         return $this->state(fn () => [
             'status' => TicketStatus::New,

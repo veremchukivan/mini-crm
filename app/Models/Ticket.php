@@ -18,6 +18,7 @@ class Ticket extends Model implements HasMedia
 {
     /** @use HasFactory<TicketFactory> */
     use HasFactory;
+
     use InteractsWithMedia;
 
     /**
@@ -55,9 +56,7 @@ class Ticket extends Model implements HasMedia
         $this->addMediaCollection('attachments');
     }
 
-    public function registerMediaConversions(?Media $media = null): void
-    {
-    }
+    public function registerMediaConversions(?Media $media = null): void {}
 
     public function scopeCreatedToday(Builder $query): Builder
     {

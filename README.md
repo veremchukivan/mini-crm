@@ -1,58 +1,181 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Mini CRM
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Міні-CRM на Laravel 12 для збору заявок із сайту через iframe-віджет, з REST API, Blade-адмінкою, ролями через Spatie Permission, файлами через Spatie Media Library, Swagger-документацією та Feature-тестами.
 
-## About Laravel
+## Стек
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.4 у Docker-оточенні
+- Laravel 12
+- MySQL 8
+- Redis
+- Spatie Laravel Permission
+- Spatie Laravel Media Library
+- L5-Swagger
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Швидкий запуск через Docker
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+1. Скопіюйте конфіг:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+cp .env.example .env
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+2. Підніміть контейнери:
 
-## Contributing
+```bash
+docker compose up -d --build
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. Встановіть залежності, згенеруйте ключ, запустіть міграції, сідер і симлінк для файлів:
 
-## Code of Conduct
+```bash
+docker compose exec app composer install
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate:fresh --seed
+docker compose exec app php artisan storage:link
+docker compose exec app php artisan l5-swagger:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Відкрийте застосунок:
 
-## Security Vulnerabilities
+- Віджет: `http://localhost:8080/widget`
+- Альтернативний маршрут віджета: `http://localhost:8080/feedback-widget`
+- Логін менеджера: `http://localhost:8080/login`
+- Swagger UI: `http://localhost:8080/api/documentation`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Локальний запуск без Docker
 
-## License
+Потрібно: PHP 8.4+, Composer, MySQL, Redis.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+cp .env.example .env
+composer install
+php artisan key:generate
+php artisan migrate:fresh --seed
+php artisan storage:link
+php artisan l5-swagger:generate
+php artisan serve
+```
+
+## Тестові дані
+
+- Менеджер:
+  - Email: `manager@mini-crm.test`
+  - Пароль: `password`
+- Seeder створює:
+  - 6 клієнтів
+  - 12 заявок
+  - вкладення для частини заявок
+- Ролі:
+  - `manager`
+  - `admin`
+- Permissions:
+  - `tickets.view`
+  - `tickets.update`
+
+## Віджет через iframe
+
+```html
+<iframe
+    src="http://localhost:8080/widget"
+    width="100%"
+    height="760"
+    style="border:0; max-width:720px;"
+    loading="lazy"
+></iframe>
+```
+
+## API
+
+### Створення заявки
+
+`POST /api/tickets`
+
+Приклад через `curl`:
+
+```bash
+curl -X POST http://localhost:8080/api/tickets \
+  -H "Accept: application/json" \
+  -F "name=Olena Koval" \
+  -F "phone=+380501234567" \
+  -F "email=olena@example.com" \
+  -F "subject=Потрібна консультація" \
+  -F "message=Опишіть вашу задачу" \
+  -F "attachment=@/absolute/path/to/file.pdf"
+```
+
+### Статистика заявок
+
+`GET /api/tickets/statistics`
+
+Приклад:
+
+```bash
+curl -H "Accept: application/json" http://localhost:8080/api/tickets/statistics
+```
+
+Відповідь:
+
+```json
+{
+  "data": {
+    "day": 2,
+    "week": 4,
+    "month": 5
+  }
+}
+```
+
+## Адмін-частина
+
+- Логін по email/паролю
+- Доступ тільки для ролей `manager` або `admin`
+- Список усіх заявок
+- Фільтрація за:
+  - датою
+  - статусом
+  - email
+  - телефоном
+- Перегляд деталей заявки
+- Завантаження прикріплених файлів
+- Зміна статусу заявки
+
+## Базові правила бізнес-логіки
+
+- Телефон валідовано у форматі E.164
+- Не більше однієї заявки на добу з одного email або номера телефону
+- Файли прикріплюються до заявки тільки через Spatie Media Library
+- Статистика заявок рахується Eloquent scopes + Carbon
+
+## Тести
+
+```bash
+php artisan test
+```
+
+Покриті сценарії:
+
+- створення заявки через API
+- денний ліміт по email/телефону
+- статистика за день/тиждень/місяць
+- логін менеджера
+- рольовий доступ до адмінки
+- фільтрація заявок
+- оновлення статусу
+- скачування вкладення
+
+## Swagger
+
+Після генерації документація доступна на:
+
+- `GET /api/documentation`
+
+Повторна генерація:
+
+```bash
+php artisan l5-swagger:generate
+```
+
+## Архітектурні нотатки
+
+Окремий файл з поясненням архітектурних рішень: [ARCHITECTURE.md](ARCHITECTURE.md)
