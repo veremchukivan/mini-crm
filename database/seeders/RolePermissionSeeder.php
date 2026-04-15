@@ -13,14 +13,13 @@ class RolePermissionSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $permissions = [
+        $permissionNames = [
             'tickets.view',
             'tickets.update',
         ];
 
-        foreach ($permissions as $permissionName) {
-            Permission::findOrCreate($permissionName, 'web');
-        }
+        $permissions = collect($permissionNames)
+            ->map(fn (string $permissionName) => Permission::findOrCreate($permissionName, 'web'));
 
         $managerRole = Role::findOrCreate('manager', 'web');
         $adminRole = Role::findOrCreate('admin', 'web');

@@ -10,11 +10,10 @@ readonly class TicketFilterData
         public ?string $dateTo,
         public ?string $email,
         public ?string $phone,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public static function fromArray(array $data): self
     {
